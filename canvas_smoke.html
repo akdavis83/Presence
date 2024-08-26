@@ -1,0 +1,123 @@
+<!doctype html>
+<title>Smoke</title>
+<link rel="icon" href="https://fav.farm/🔥" />
+<script src="../../build/fireworks-bundle.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pirata+One&display=swap" rel="stylesheet">
+<style>
+	.pirata-one-regular {
+  font-family: "Pirata One", system-ui;
+  font-weight: 400;
+  font-style: normal;
+}
+
+</style>
+<body>
+	<div style="position: absolute; left: 500px; z-index: 100;">
+		<img style="z-index: 100;" src="../smoke/smoke1.png" alt="smoke">
+		<h1 class="pirata-one-regular" style="color: gray; position: absolute; text-align: center; top: 300px; left: 50px; z-index: 100; font-size: 50px;">Smoke</h1>
+		<h1 class="pirata-one-regular" style="color: gray; position: absolute; top: 400px; z-index: 100; font-size: 20px;"> 17 And Moses brought forth the people out of the camp to meet with God; and they stood at the nether part of the mount. 18 And mount Sinai was altogether on a smoke, because the LORD descended upon it in fire: and the smoke thereof ascended as the smoke of a furnace, and the whole mount quaked greatly. (Exodus 19:17-18)</h1>
+	</div>
+	<script>
+	// build canvas element
+	var canvas	= document.createElement('canvas');
+	canvas.width	= window.innerWidth;
+	canvas.height	= window.innerHeight;
+	document.body.appendChild(canvas);
+	// canvas.style
+	canvas.style.position	= "absolute";
+	canvas.style.left	= 0;
+	canvas.style.top	= 0;
+	// setup ctx
+	var ctx		= canvas.getContext('2d');
+
+	// clear canvas and center it
+	ctx.fillStyle	= 'rgba(0,0,0,1)';
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+
+	var emitter	= Fireworks.createEmitter({nParticles : 60})
+		.bindTriggerDomEvents()
+		.effectsStackBuilder()
+			.spawnerSteadyRate(20)
+			.position(Fireworks.createShapeSphere(0, 0, 0, 1))
+			.velocity(Fireworks.createShapeBox(0, -120, 0, 30, 1, 0))
+			.randomVelocityDrift(Fireworks.createVector(300,0,0))
+			.friction(0.99)
+			.lifeTime(1, 2)
+			.createEffect('scale', {
+					shrink	: 1.015
+				}).onBirth(function(particle, deltaTime){
+					var data	= particle.get('renderToCanvas');
+					data.scale	= 0.3+ Math.random()*0.2;
+				}).onUpdate(function(particle, deltaTime){
+					var data	= particle.get('renderToCanvas');
+					data.scale	*= this.opts.shrink;
+				}).back()
+			.createEffect('opacity', {
+					fade	: 0.97
+				}).onBirth(function(particle, deltaTime){
+					var data	= particle.get('renderToCanvas');
+					data.opacity	= 0.2 + Math.random()*0.2;
+				}).onUpdate(function(particle, deltaTime){
+					var data	= particle.get('renderToCanvas');
+					data.opacity	*= this.opts.fade;
+				}).back()
+			.createEffect('rotation', {
+					spin	: Math.PI/40
+				}).onBirth(function(particle, deltaTime){
+					var data	= particle.get('renderToCanvas');
+					data.rotation	= (Math.random()*2-1) * Math.PI;
+				}).onUpdate(function(particle, deltaTime){
+					var data	= particle.get('renderToCanvas');
+					data.rotation	+= this.opts.spin;
+				}).back()
+			.createEffect('compositeOperation').onPreRender(function(){
+					ctx.save();
+					ctx.globalCompositeOperation = 'lighten';
+				}).onPostRender(function(particle, deltaTime){
+					ctx.restore();
+				}).back()
+			.renderToCanvas({
+				ctx	: ctx,
+				type	: 'drawImage',
+				image	: "../assets/images/ParticleSmoke2.png"
+			})
+			.back()
+		.start();
+
+	setInterval(function(){
+		// clear the screen
+		ctx.save();
+		ctx.fillStyle	= 'rgba(0,0,0,1)';
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+		ctx.restore();
+		
+		// update emitter and render it
+		var deltaTime	= 1/60;
+		emitter.update(deltaTime).render();
+	}, 1000/60);
+
+	document.body.addEventListener('mousemove', function(event){
+		// get mouse coordinate in [-1, +1]
+		var mouseX	= event.clientX - window.innerWidth /2;
+		var mouseY	= event.clientY - window.innerHeight/2;
+
+		// set gravity in local space
+		var effect	= emitter.effect('position');
+		var center	= effect.opts.shape.center;
+		center.set(mouseX, mouseY, 0)
+	});
+</script></body>
+
+
+
+
+
+
+
+
+
+
+
